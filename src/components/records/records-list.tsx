@@ -108,14 +108,14 @@ export function RecordsList() {
             
             <div>
               <Select
-                value={filters.routeType || ''}
-                onValueChange={(value) => updateFilters('routeType', value)}
+                value={filters.routeType || 'all'}
+                onValueChange={(value) => updateFilters('routeType', value === 'all' ? '' : value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="ルートタイプ" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">すべて</SelectItem>
+                  <SelectItem value="all">すべて</SelectItem>
                   {Object.entries(routeTypeLabels).map(([value, label]) => (
                     <SelectItem key={value} value={value}>
                       {label}
@@ -127,14 +127,14 @@ export function RecordsList() {
 
             <div>
               <Select
-                value={filters.status || ''}
-                onValueChange={(value) => updateFilters('status', value)}
+                value={filters.status || 'all'}
+                onValueChange={(value) => updateFilters('status', value === 'all' ? '' : value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="ステータス" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">すべて</SelectItem>
+                  <SelectItem value="all">すべて</SelectItem>
                   {Object.entries(statusLabels).map(([value, label]) => (
                     <SelectItem key={value} value={value}>
                       {label}

@@ -8,46 +8,130 @@
 - ✅ 検索・フィルタリング機能
 - ✅ 統計情報とダッシュボード
 - ✅ レスポンシブデザイン
-- ✅ Supabaseデータベース統合
+- ✅ Supabase MCPによるデータベース統合
 - ✅ TypeScript対応
 
 ## 技術スタック
 
 - **フレームワーク**: Next.js 15 (App Router)
 - **UI**: shadcn/ui + Tailwind CSS
-- **データベース**: Supabase
+- **データベース**: Supabase (MCP統合)
 - **状態管理**: React Context + useReducer
 - **フォーム**: React Hook Form + Zod
 - **言語**: TypeScript
 
 ## セットアップ
 
-1. **依存関係のインストール**
-   ```bash
-   npm install
-   ```
+### 前提条件
 
-2. **Supabaseプロジェクトの設定**
-   - [Supabase](https://supabase.com)でプロジェクトを作成
-   - SQLエディタで`supabase-schema.sql`を実行してテーブルを作成
+- Node.js 18.0以上
+- npm または yarn
+- [Claude Code](https://claude.ai/code) (Supabase MCP使用のため)
 
-3. **環境変数の設定**
-   ```bash
-   cp .env.example .env.local
-   ```
-   `.env.local`にSupabaseの認証情報を設定してください：
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
+### 1. リポジトリのクローン
 
-4. **開発サーバーの起動**
-   ```bash
-   npm run dev
-   ```
+```bash
+git clone https://github.com/your-username/climbing-app.git
+cd climbing-app
+```
 
-5. **ブラウザでアクセス**
-   [http://localhost:3000](http://localhost:3000)を開いてアプリケーションを確認
+### 2. 依存関係のインストール
+
+```bash
+npm install
+```
+
+### 3. Supabase MCPを使用したプロジェクトのセットアップ
+
+**重要**: このプロジェクトはSupabase MCPを使用して構築されています。以下の手順でセットアップを行ってください。
+
+#### 3.1 Supabaseプロジェクトの作成
+
+1. [Supabase](https://supabase.com)でアカウントを作成
+2. 新しいプロジェクトを作成
+3. プロジェクトの設定から以下の情報を取得：
+   - Project URL
+   - API Keys (anon public key)
+
+#### 3.2 Claude CodeでSupabase MCPを設定
+
+1. Claude Codeを開く
+2. 以下のコマンドを実行してSupabase MCPを設定：
+
+```bash
+# Supabase MCPの設定
+# Claude Codeで以下を実行
+npm install @supabase/supabase-js
+```
+
+#### 3.3 データベーススキーマの作成
+
+Supabase MCPを使用してデータベースを作成：
+
+```sql
+-- supabase/migrations/20250715_create_climb_records_table.sql
+CREATE TABLE climb_records (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  route_name TEXT NOT NULL,
+  area TEXT NOT NULL,
+  grade TEXT NOT NULL,
+  route_type TEXT NOT NULL CHECK (route_type IN ('boulder', 'lead', 'toprope')),
+  date DATE NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('completed', 'failed', 'practice')),
+  notes TEXT,
+  rating INTEGER CHECK (rating >= 1 AND rating <= 5),
+  duration INTEGER CHECK (duration > 0),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- トリガーでupdated_atを自動更新
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_climb_records_updated_at
+  BEFORE UPDATE ON climb_records
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+```
+
+#### 3.4 環境変数の設定
+
+```bash
+cp .env.example .env.local
+```
+
+`.env.local`にSupabaseの認証情報を設定：
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+### 4. 開発サーバーの起動
+
+```bash
+npm run dev
+```
+
+### 5. ブラウザでアクセス
+
+[http://localhost:3000](http://localhost:3000)を開いてアプリケーションを確認
+
+## Supabase MCPの利点
+
+このプロジェクトでSupabase MCPを使用することで以下の利点があります：
+
+- **自動設定**: データベーススキーマの自動生成
+- **型安全性**: TypeScript型定義の自動生成
+- **リアルタイム更新**: Supabaseのリアルタイム機能の簡単な統合
+- **認証連携**: 将来的な認証機能の簡単な追加
+- **効率的な開発**: Claude Codeとの統合による高速な開発体験
 
 ## 主な機能
 

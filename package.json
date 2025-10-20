@@ -20,7 +20,7 @@
     "date-fns": "^4.1.0",
     "lucide-react": "^0.468.0",
     "uuid": "^9.0.1",
-    "recharts": "^2.8.0",
+    "recharts": "^3.3.0",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-select": "^2.2.5",
     "@radix-ui/react-slot": "^1.2.3",
